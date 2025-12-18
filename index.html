@@ -39,6 +39,28 @@
       text-decoration: underline;
       opacity: 0.8;
     }
+    a:hover {
+      opacity: 1;
+    }
+
+    /* TikTok block */
+    .tiktok {
+      margin-top: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 15px;
+    }
+    .tiktok svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      opacity: 0.9;
+    }
+    .tiktok:hover svg {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -54,6 +76,20 @@
       Personal experimental project.<br />
       No data collection. No tracking.
     </p>
+
+    <!-- TikTok link -->
+    <a
+      class="tiktok"
+      href="https://www.tiktok.com/@ai_ne_ponyal"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <!-- TikTok icon (SVG) -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 8.3c-1.5 0-3-.5-4.2-1.4v7.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .6 0 .9.1v3.1a2.9 2.9 0 1 0 2 2.8V2h3.2c.3 2.1 2 3.8 4.2 4.1v2.2z"/>
+      </svg>
+      Follow on TikTok @ai_ne_ponyal
+    </a>
 
     <div class="small">
       <a href="./privacy.html">Privacy Policy</a> ·
