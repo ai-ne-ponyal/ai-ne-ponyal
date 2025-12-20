@@ -311,6 +311,10 @@
         Queue post
       </button>
 
+      <div id="limitsInfo" class="limits-info" style="margin-top: 16px; padding: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; font-size: 14px; text-align: center; opacity: 0.8;">
+        <span id="limitsText">Loading limits...</span>
+      </div>
+
       <div id="errorBox" class="error-box" aria-live="polite">
         <strong id="errorTitle">⚠️ Error</strong>
         <div id="errorText">Something went wrong.</div>
@@ -372,7 +376,7 @@
     <div class="small">
       <a href="./privacy.html">Privacy Policy</a> ·
       <a href="./terms.html">Terms of Service</a> ·
-      <a href="./intentions.html">Your Intentions</a>
+      <a href="./intentions.html">Your Queues</a>
     </div>
   </div>
 
@@ -398,7 +402,6 @@
   </div>
 
   <!-- html-to-image -->
-  <script defer src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
 
   <script>
@@ -686,6 +689,9 @@
 
         fillCards(data);
         setShareButtonsEnabled(true);
+        
+        // Обновляем лимиты после успешного создания
+        loadLimits();
       } catch (e) {
         console.error(e);
         showError("🤖 AI не добрался до сервера", "Сервер сейчас отдыхает. Попробуйте позже.");
@@ -694,6 +700,38 @@
         btn.textContent = "Queue post";
       }
     });
+
+    // Загружаем информацию о лимитах
+    async function loadLimits() {
+      try {
+        const res = await fetch(`${API_BASE}/limits`, {
+          method: "GET",
+          headers: { "Accept": "application/json", "ngrok-skip-browser-warning": "true" },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const limitsText = document.getElementById("limitsText");
+          if (limitsText && data.creation) {
+            const remaining = data.creation.remaining;
+            const max = data.creation.max;
+            const used = data.creation.used;
+            if (remaining > 0) {
+              limitsText.textContent = `You can queue ${remaining} more post${remaining !== 1 ? 's' : ''} today (${used}/${max} used)`;
+            } else {
+              limitsText.textContent = `Daily limit reached (${used}/${max}). Try again tomorrow.`;
+              limitsText.style.opacity = "0.6";
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load limits:", e);
+      }
+    }
+
+    // Загружаем лимиты при загрузке страницы
+    loadLimits();
+    // Обновляем лимиты каждые 30 секунд
+    setInterval(loadLimits, 30000);
 
     tiktokAuthBtn.addEventListener("click", async () => {
       tiktokAuthBtn.disabled = true;
