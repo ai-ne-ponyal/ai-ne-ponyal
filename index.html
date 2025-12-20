@@ -701,7 +701,7 @@
 
       try {
         // Проверяем доступность API перед редиректом
-        const checkRes = await fetch(`${API_BASE}/api/intentions?page=1&page_size=1`, {
+        const checkRes = await fetch(`${API_BASE}/intentions?page=1&page_size=1`, {
           method: "GET",
           headers: { "Accept": "application/json", "ngrok-skip-browser-warning": "true" },
           signal: AbortSignal.timeout(5000) // 5 секунд таймаут
