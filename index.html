@@ -58,7 +58,10 @@
       font-size: 15px;
       font-weight: 600;
       text-decoration: none;
+      border: 0;
+      cursor: pointer;
       transition: transform 0.15s ease, opacity 0.15s ease;
+      user-select: none;
     }
 
     .btn:hover {
@@ -70,6 +73,12 @@
       transform: translateY(0);
     }
 
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+      transform: none;
+    }
+
     .btn-tiktok {
       background: linear-gradient(135deg, #25f4ee, #fe2c55);
       color: #0f0f0f;
@@ -79,6 +88,55 @@
       background: #1f1f1f;
       border: 1px solid #2a2a2a;
       color: #ffffff;
+    }
+
+    /* Result box */
+    .result {
+      margin-top: 4px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #151515;
+      border: 1px solid #2a2a2a;
+      text-align: left;
+      display: none;
+    }
+
+    .result strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #1f1f1f;
+      border: 1px solid #2a2a2a;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .result.error {
+      border-color: rgba(254, 44, 85, 0.7);
+      background: rgba(254, 44, 85, 0.08);
+    }
+
+    /* Error box (ONLY 2 types total) */
+    .error-box {
+      margin-top: 4px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(254, 44, 85, 0.08);
+      border: 1px solid rgba(254, 44, 85, 0.6);
+      text-align: left;
+      display: none;
+    }
+
+    .error-box strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
 
     /* TikTok link */
@@ -124,12 +182,24 @@
         Sign in with TikTok
       </a>
 
-      <a
-        class="btn btn-generate"
-        href="https://70ec38ff6d36.ngrok-free.app/post/create"
-      >
+      <button id="genBtn" class="btn btn-generate" type="button">
         Generate post
-      </a>
+      </button>
+
+      <!-- Error box:
+           1) Access denied (not allowed account) -> shown only when URL has ?error=login_failed
+           2) Something went wrong during login/generation -> shown only by JS on request crash/bad response
+      -->
+      <div id="errorBox" class="error-box" aria-live="polite">
+        <strong id="errorTitle">⚠️ Error</strong>
+        <div id="errorText">Something went wrong.</div>
+      </div>
+
+      <!-- Result box -->
+      <div id="result" class="result" aria-live="polite">
+        <strong id="resultTitle">✅ Generated</strong>
+        Joke number: <span id="jokeId" class="pill">—</span>
+      </div>
     </div>
 
     <!-- TikTok link -->
@@ -150,5 +220,114 @@
       <a href="./terms.html">Terms of Service</a>
     </div>
   </div>
+
+  <script>
+    const API_BASE = "https://70ec38ff6d36.ngrok-free.app";
+
+    const btn = document.getElementById("genBtn");
+
+    const errorBox = document.getElementById("errorBox");
+    const errorTitle = document.getElementById("errorTitle");
+    const errorText = document.getElementById("errorText");
+
+    const result = document.getElementById("result");
+    const resultTitle = document.getElementById("resultTitle");
+    const jokeId = document.getElementById("jokeId");
+
+    function showError(title, text) {
+      // Always hide result on error
+      result.style.display = "none";
+      result.classList.remove("error");
+
+      errorBox.style.display = "block";
+      errorTitle.textContent = title;
+      errorText.textContent = text;
+    }
+
+    function hideError() {
+      errorBox.style.display = "none";
+    }
+
+    function showResult(ok, text) {
+      hideError();
+      result.style.display = "block";
+      result.classList.toggle("error", !ok);
+      resultTitle.textContent = ok ? "✅ Generated" : "⚠️ Error";
+      jokeId.textContent = text;
+    }
+
+    // === ERROR TYPE #1: "Not me" login (backend redirect) ===
+    // Backend should redirect to:
+    //   https://<github-pages-domain>/?error=login_failed
+    (function renderAccessDeniedIfAny() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("error") !== "login_failed") return;
+
+      showError(
+        "🚫 Access denied",
+        "This TikTok account is not allowed to use this tool."
+      );
+
+      // Clean URL so it doesn't stick on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+    })();
+
+    // === Generate post (public) ===
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      btn.textContent = "Generating…";
+
+      try {
+        const res = await fetch(`${API_BASE}/post/create`, {
+          method: "GET",
+          headers: { "Accept": "application/json" },
+        });
+
+        if (!res.ok) {
+          // ERROR TYPE #2: "Kazus" (server returned non-2xx)
+          showError(
+            "❌ Something went wrong",
+            "We couldn't generate a post right now. Please try again."
+          );
+          return;
+        }
+
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          // ERROR TYPE #2: "Kazus" (not JSON)
+          showError(
+            "❌ Something went wrong",
+            "Unexpected server response. Please try again."
+          );
+          return;
+        }
+
+        const id = data.joke_id ?? data.jokeId ?? data.number ?? data.id;
+
+        if (!id) {
+          // ERROR TYPE #2: "Kazus" (missing expected field)
+          showError(
+            "❌ Something went wrong",
+            "Invalid response from server. Please try again."
+          );
+          return;
+        }
+
+        showResult(true, String(id));
+      } catch (e) {
+        // ERROR TYPE #2: "Kazus" (network/CORS/ngrok down)
+        console.error(e);
+        showError(
+          "❌ Something went wrong",
+          "Unable to reach the server. Please try again."
+        );
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Generate post";
+      }
+    });
+  </script>
 </body>
 </html>
