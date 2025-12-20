@@ -16,6 +16,7 @@
       height: 100vh;
       text-align: center;
     }
+
     .box { max-width: 420px; padding: 24px; }
     h1 { font-size: 36px; margin-bottom: 12px; }
 
@@ -23,7 +24,7 @@
       font-size: 16px;
       opacity: 0.8;
       line-height: 1.5;
-      white-space: pre-line; /* preserves \n from backend */
+      white-space: pre-line;
       margin: 0;
     }
 
@@ -40,20 +41,17 @@
     }
 
     .btn {
-      display: inline-block;
       padding: 14px 18px;
       border-radius: 10px;
       font-size: 15px;
       font-weight: 600;
-      text-decoration: none;
       border: 0;
       cursor: pointer;
       transition: transform 0.15s ease, opacity 0.15s ease;
-      user-select: none;
     }
+
     .btn:hover { transform: translateY(-1px); opacity: 0.95; }
-    .btn:active { transform: translateY(0); }
-    .btn:disabled { cursor: not-allowed; opacity: 0.65; transform: none; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .btn-tiktok {
       background: linear-gradient(135deg, #25f4ee, #fe2c55);
@@ -67,7 +65,6 @@
       color: #ffffff;
     }
 
-    /* Shareable result card */
     .result {
       margin-top: 6px;
       padding: 14px 16px;
@@ -105,424 +102,162 @@
     .meta-row {
       margin-top: 10px;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
-
-    .open-link {
-      text-decoration: none;
-      opacity: 0.9;
-      font-weight: 600;
-      color: #69c9d0;
-    }
-    .open-link:hover { opacity: 1; text-decoration: underline; }
 
     .share-btn {
       background: #1f1f1f;
       border: 1px solid #2a2a2a;
       color: #ffffff;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 10px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      white-space: nowrap;
     }
-    .share-btn:hover { transform: translateY(-1px); opacity: 0.95; }
-    .share-btn:active { transform: translateY(0); }
-    .share-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .share-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .error-box {
       margin-top: 6px;
       padding: 14px 16px;
       border-radius: 12px;
-      background: rgba(254, 44, 85, 0.08);
-      border: 1px solid rgba(254, 44, 85, 0.6);
-      text-align: left;
+      background: rgba(254,44,85,0.08);
+      border: 1px solid rgba(254,44,85,0.6);
       display: none;
+      text-align: left;
     }
-    .error-box strong { display: block; margin-bottom: 6px; font-size: 14px; }
-
-    .tiktok {
-      margin-top: 28px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      font-size: 15px;
-      color: #ffffff;
-      opacity: 0.9;
-    }
-    .tiktok svg { width: 20px; height: 20px; fill: white; opacity: 0.9; }
-    .tiktok:hover { opacity: 1; text-decoration: underline; }
   </style>
 </head>
 
 <body>
-  <div class="box">
-    <h1>AI не понял</h1>
+<div class="box">
+  <h1>AI не понял</h1>
 
-    <p>When AI tries its best.<br />Sometimes it doesn't.</p>
-    <p style="margin-top:12px;">Personal experimental project.<br />No data collection. No tracking.</p>
+  <p>When AI tries its best.<br>Sometimes it doesn't.</p>
+  <p style="margin-top:12px;">Personal experimental project.<br>No tracking.</p>
 
-    <div class="actions">
-      <a class="btn btn-tiktok" href="https://70ec38ff6d36.ngrok-free.app/auth/start">
-        Sign in with TikTok
-      </a>
+  <div class="actions">
+    <a class="btn btn-tiktok" href="https://70ec38ff6d36.ngrok-free.app/auth/start">
+      Sign in with TikTok
+    </a>
 
-      <button id="genBtn" class="btn btn-generate" type="button">
-        Generate post
-      </button>
+    <button id="genBtn" class="btn btn-generate">Generate post</button>
 
-      <div id="errorBox" class="error-box" aria-live="polite">
-        <strong id="errorTitle">⚠️ Error</strong>
-        <div id="errorText">Something went wrong.</div>
-      </div>
+    <div id="errorBox" class="error-box">
+      <strong>🤖 AI отвлёкся</strong>
+      <div id="errorText"></div>
+    </div>
 
-      <!-- Shareable card -->
-      <div id="result" class="result" aria-live="polite">
-        <strong id="resultHeader">🧠 AI готовит что-то смешное</strong>
-        <p id="resultDescription"></p>
+    <div id="result" class="result">
+      <strong id="resultHeader"></strong>
+      <p id="resultDescription"></p>
 
-        <div class="cta">
-          <div style="font-weight:700; font-size:18px; opacity:0.95;">
-            Ищи её позже в TikTok по хэштегу
-          </div>
+      <div class="cta">
+        Ищи её позже в TikTok по хэштегу<br>
+        <a id="hashtagLink" class="pill" target="_blank">#—</a>
 
-          <div style="margin-top:10px;">
-            <a id="hashtagLink" class="pill" href="#" target="_blank" rel="noopener noreferrer">#—</a>
-          </div>
-
-          <div style="margin-top:12px; opacity:0.92;">
-            Или на странице нашего аккаунта:
-            <a class="open-link" href="https://www.tiktok.com/@ai_ne_ponyal" target="_blank" rel="noopener noreferrer">
-              @ai_ne_ponyal
-            </a>
-          </div>
-
-          <div class="meta-row">
-            <a id="tiktokSearchLink" class="open-link" href="#" target="_blank" rel="noopener noreferrer">
-              🔍 Открыть поиск TikTok
-            </a>
-
-            <!-- Buttons will be shown/hidden depending on browser capabilities -->
-            <button id="shareNativeBtn" class="share-btn" type="button" disabled style="display:none;">
-              📤 Share
-            </button>
-
-            <button id="copyImageBtn" class="share-btn" type="button" disabled style="display:none;">
-              📋 Copy card
-            </button>
-
-            <button id="downloadPngBtn" class="share-btn" type="button" disabled style="display:none;">
-              ⬇️ Download PNG
-            </button>
-          </div>
-
-          <div id="shareHint" style="margin-top:10px; font-size:13px; opacity:0.6; display:none;">
-            Tip: for Telegram, “Copy card” → paste into chat works best.
-          </div>
+        <div class="meta-row">
+          <button id="shareNativeBtn" class="share-btn" disabled>📤 Share</button>
+          <button id="copyImageBtn" class="share-btn" disabled>📋 Copy card</button>
+          <button id="downloadPngBtn" class="share-btn" disabled>⬇️ PNG</button>
         </div>
       </div>
     </div>
-
-    <a class="tiktok" href="https://www.tiktok.com/@ai_ne_ponyal" target="_blank" rel="noopener noreferrer">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M21 8.3c-1.5 0-3-.5-4.2-1.4v7.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .6 0 .9.1v3.1a2.9 2.9 0 1 0 2 2.8V2h3.2c.3 2.1 2 3.8 4.2 4.1v2.2z"/>
-      </svg>
-      Follow on TikTok @ai_ne_ponyal
-    </a>
-
-    <div class="small">
-      <a href="./privacy.html">Privacy Policy</a> ·
-      <a href="./terms.html">Terms of Service</a>
-    </div>
   </div>
+</div>
 
-  <!-- Load html-to-image (two CDNs, then dynamic fallback in JS) -->
-  <script defer src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+<!-- html-to-image -->
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
 
-  <script>
-    const API_BASE = "https://70ec38ff6d36.ngrok-free.app";
+<script>
+const API_BASE = "https://70ec38ff6d36.ngrok-free.app";
 
-    const btn = document.getElementById("genBtn");
+const SHARE_TEXTS = [
+  (tag, url) => `AI не понял, но всё равно взялся за работу 😤\n#aiNePonyal ${tag}\n${url}`,
+  (tag, url) => `AI потянулся и пошёл думать 🧠\n#aiNePonyal ${tag}\n${url}`,
+  (tag, url) => `AI делает вид, что всё под контролем 😎\n#aiNePonyal ${tag}\n${url}`,
+  (tag, url) => `AI готовит шутку. Не мешайте 😅\n#aiNePonyal ${tag}\n${url}`,
+];
 
-    const errorBox = document.getElementById("errorBox");
-    const errorTitle = document.getElementById("errorTitle");
-    const errorText = document.getElementById("errorText");
+let lastResult = null;
 
-    const resultCard = document.getElementById("result");
-    const resultHeader = document.getElementById("resultHeader");
-    const resultDescription = document.getElementById("resultDescription");
+const genBtn = document.getElementById("genBtn");
+const result = document.getElementById("result");
+const headerEl = document.getElementById("resultHeader");
+const descEl = document.getElementById("resultDescription");
+const hashtagLink = document.getElementById("hashtagLink");
 
-    const hashtagLink = document.getElementById("hashtagLink");
-    const tiktokSearchLink = document.getElementById("tiktokSearchLink");
+const shareNativeBtn = document.getElementById("shareNativeBtn");
+const copyImageBtn = document.getElementById("copyImageBtn");
+const downloadPngBtn = document.getElementById("downloadPngBtn");
 
-    const shareNativeBtn = document.getElementById("shareNativeBtn");
-    const copyImageBtn = document.getElementById("copyImageBtn");
-    const downloadPngBtn = document.getElementById("downloadPngBtn");
-    const shareHint = document.getElementById("shareHint");
+function tiktokSearchUrl(id) {
+  return `https://www.tiktok.com/search?q=%23${encodeURIComponent(id)}`;
+}
 
-    let lastResult = null;
+function buildShareText(id) {
+  const pick = SHARE_TEXTS[Math.floor(Math.random()*SHARE_TEXTS.length)];
+  return pick(`#${id}`, tiktokSearchUrl(id));
+}
 
-    function showError(title, text) {
-      resultCard.style.display = "none";
-      errorBox.style.display = "block";
-      errorTitle.textContent = title;
-      errorText.textContent = text;
-      disableShareButtons();
-    }
+async function renderCard() {
+  return await htmlToImage.toPng(result, {
+    pixelRatio: 2,
+    backgroundColor: "#151515"
+  });
+}
 
-    function hideError() {
-      errorBox.style.display = "none";
-    }
+function dataUrlToFile(dataUrl) {
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  const u8 = new Uint8Array(bstr.length);
+  for (let i=0;i<bstr.length;i++) u8[i]=bstr.charCodeAt(i);
+  return new File([u8], "ai-ne-ponyal.png", {type:mime});
+}
 
-    function disableShareButtons() {
-      [shareNativeBtn, copyImageBtn, downloadPngBtn].forEach(b => b.disabled = true);
-    }
+shareNativeBtn.onclick = async () => {
+  const png = await renderCard();
+  const file = dataUrlToFile(png);
+  await navigator.share({
+    title: "AI не понял",
+    text: buildShareText(lastResult.joke_id),
+    files: [file]
+  });
+};
 
-    function setShareButtonsEnabled(enabled) {
-      [shareNativeBtn, copyImageBtn, downloadPngBtn].forEach(b => {
-        if (b.style.display !== "none") b.disabled = !enabled;
-      });
-    }
+copyImageBtn.onclick = async () => {
+  const png = await renderCard();
+  const blob = await (await fetch(png)).blob();
+  await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]);
+};
 
-    function tiktokSearchUrlByHashtag(tagWithoutHash) {
-      return `https://www.tiktok.com/search?q=%23${encodeURIComponent(tagWithoutHash)}`;
-    }
+downloadPngBtn.onclick = async () => {
+  const png = await renderCard();
+  const a = document.createElement("a");
+  a.href = png;
+  a.download = "ai-ne-ponyal.png";
+  a.click();
+};
 
-    function detectShareCapabilities() {
-      const canNativeShare = !!(navigator.share && navigator.canShare);
-      const canCopyImage = !!(navigator.clipboard && window.ClipboardItem);
-      const canDownload = true;
+genBtn.onclick = async () => {
+  genBtn.disabled = true;
+  const res = await fetch(`${API_BASE}/post/create`);
+  const data = await res.json();
 
-      // Show the best options for each environment
-      // Native share with files is tricky: we will enable only if canShare(files) is true AFTER we create a file.
-      // For now, we keep it visible if navigator.share exists.
-      shareNativeBtn.style.display = canNativeShare ? "" : "none";
-      copyImageBtn.style.display = canCopyImage ? "" : "none";
-      downloadPngBtn.style.display = canDownload ? "" : "none";
+  lastResult = data;
+  result.style.display = "block";
 
-      // Telegram UX tip
-      shareHint.style.display = (copyImageBtn.style.display !== "none") ? "" : "none";
-    }
+  headerEl.textContent = data.header;
+  descEl.textContent = data.description;
 
-    detectShareCapabilities();
+  hashtagLink.textContent = `#${data.joke_id}`;
+  hashtagLink.href = tiktokSearchUrl(data.joke_id);
 
-    function showResult(data) {
-      hideError();
-      resultCard.style.display = "block";
-
-      const id = String(data.joke_id);
-      const hashtag = `#${id}`;
-      const searchUrl = tiktokSearchUrlByHashtag(id);
-
-      resultHeader.textContent = data.header || "🧠 AI готовит что-то смешное";
-      resultDescription.textContent = data.description || "Нужно немного времени. AI уже готовится думать.";
-
-      hashtagLink.textContent = hashtag;
-      hashtagLink.href = searchUrl;
-      tiktokSearchLink.href = searchUrl;
-
-      lastResult = { ...data, _searchUrl: searchUrl };
-
-      // enable visible share buttons
-      setShareButtonsEnabled(true);
-    }
-
-    function loadScript(src) {
-      return new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = src;
-        s.async = true;
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-    }
-
-    async function ensureHtmlToImageLoaded() {
-      if (window.htmlToImage && typeof window.htmlToImage.toPng === "function") return;
-
-      const candidates = [
-        "https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js",
-        "https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js",
-      ];
-
-      for (const url of candidates) {
-        try {
-          await loadScript(url);
-          if (window.htmlToImage && typeof window.htmlToImage.toPng === "function") return;
-        } catch {}
-      }
-
-      throw new Error("html-to-image not available");
-    }
-
-    async function renderCardToPngDataUrl() {
-      await ensureHtmlToImageLoaded();
-
-      // Render ONLY the card (#result) to PNG
-      return await window.htmlToImage.toPng(resultCard, {
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#151515",
-      });
-    }
-
-    function dataUrlToFile(dataUrl, filename) {
-      const arr = dataUrl.split(",");
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) u8arr[n] = bstr.charCodeAt(n);
-      return new File([u8arr], filename, { type: mime });
-    }
-
-    async function copyCardImageToClipboard(dataUrl) {
-      const blob = await (await fetch(dataUrl)).blob();
-      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-    }
-
-    function downloadDataUrl(dataUrl, filename) {
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-
-    function setButtonBusy(btnEl, busyText) {
-      const old = btnEl.textContent;
-      btnEl.disabled = true;
-      btnEl.textContent = busyText;
-      return () => {
-        btnEl.textContent = old;
-        // enabled back only if result is visible
-        btnEl.disabled = (resultCard.style.display === "none");
-      };
-    }
-
-    async function nativeSharePngFile(file) {
-      // IMPORTANT:
-      // Even if navigator.share works, some targets (Telegram) may ignore files.
-      // We still try, but we only claim success if share() resolves.
-      await navigator.share({
-        title: "AI не понял",
-        text: " ", // avoid title-only shares
-        files: [file],
-      });
-    }
-
-    shareNativeBtn.addEventListener("click", async () => {
-      if (!lastResult) return;
-
-      const restore = setButtonBusy(shareNativeBtn, "Sharing…");
-      try {
-        const dataUrl = await renderCardToPngDataUrl();
-        const file = dataUrlToFile(dataUrl, "ai-ne-ponyal.png");
-
-        // If browser says it can't share files, fallback immediately
-        if (!navigator.canShare || !navigator.canShare({ files: [file] })) {
-          // Fallback to copy if possible, else download
-          if (copyImageBtn.style.display !== "none") {
-            await copyCardImageToClipboard(dataUrl);
-            shareNativeBtn.textContent = "✅ Copied";
-          } else {
-            downloadDataUrl(dataUrl, "ai-ne-ponyal.png");
-            shareNativeBtn.textContent = "⬇️ Downloaded";
-          }
-          setTimeout(restore, 1000);
-          return;
-        }
-
-        await nativeSharePngFile(file);
-        shareNativeBtn.textContent = "✅ Shared";
-        setTimeout(restore, 1000);
-      } catch (e) {
-        console.error(e);
-        restore();
-        showError("🤖 AI отвлёкся", "Не получилось поделиться карточкой. Попробуй “Copy card” или “Download PNG”.");
-      }
-    });
-
-    copyImageBtn.addEventListener("click", async () => {
-      if (!lastResult) return;
-
-      const restore = setButtonBusy(copyImageBtn, "Copying…");
-      try {
-        const dataUrl = await renderCardToPngDataUrl();
-        await copyCardImageToClipboard(dataUrl);
-        copyImageBtn.textContent = "✅ Copied";
-        setTimeout(restore, 1000);
-      } catch (e) {
-        console.error(e);
-        restore();
-        showError("🤖 AI отвлёкся", "Не получилось скопировать карточку. Попробуй “Download PNG”.");
-      }
-    });
-
-    downloadPngBtn.addEventListener("click", async () => {
-      if (!lastResult) return;
-
-      const restore = setButtonBusy(downloadPngBtn, "Preparing…");
-      try {
-        const dataUrl = await renderCardToPngDataUrl();
-        downloadDataUrl(dataUrl, "ai-ne-ponyal.png");
-        downloadPngBtn.textContent = "⬇️ Downloaded";
-        setTimeout(restore, 1000);
-      } catch (e) {
-        console.error(e);
-        restore();
-        showError("🤖 AI отвлёкся", "Не получилось сохранить PNG. Попробуй ещё раз.");
-      }
-    });
-
-    btn.addEventListener("click", async () => {
-      btn.disabled = true;
-      btn.textContent = "AI is thinking…";
-      disableShareButtons();
-
-      try {
-        const res = await fetch(`${API_BASE}/post/create`, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-            "ngrok-skip-browser-warning": "true"
-          },
-        });
-
-        if (!res.ok) {
-          showError("🤖 AI нужно немного времени", "Сейчас не получилось начать. Попробуй ещё раз.");
-          return;
-        }
-
-        let data;
-        try {
-          data = await res.json();
-        } catch {
-          showError("🤖 AI задумался слишком глубоко", "Неожиданный ответ сервера. Попробуй ещё раз.");
-          return;
-        }
-
-        if (!data || !data.joke_id) {
-          showError("🤖 AI забыл номер шутки", "В ответе сервера нет joke_id.");
-          return;
-        }
-
-        showResult(data);
-      } catch (e) {
-        console.error(e);
-        showError("🤖 AI не добрался до сервера", "Не удалось связаться с сервером. Попробуй ещё раз.");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Generate post";
-      }
-    });
-  </script>
+  [shareNativeBtn, copyImageBtn, downloadPngBtn].forEach(b => b.disabled = false);
+  genBtn.disabled = false;
+};
+</script>
 </body>
 </html>
