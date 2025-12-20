@@ -141,6 +141,48 @@
       font-size: 14px;
     }
 
+    .limits-info {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .limit-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .limit-card-title {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .limit-card-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .limit-card-details {
+      font-size: 13px;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 600px) {
+      .limits-info {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .btn {
       display: inline-block;
       padding: 10px 16px;
@@ -192,15 +234,40 @@
 </head>
 <body>
   <div class="container">
-    <h1>Your Intentions</h1>
+    <h1>Your Queues</h1>
     <p style="text-align: center; margin-bottom: 24px;">
       <a href="./index.html">← Back</a>
     </p>
+    
+    <div id="limitsInfo" class="limits-info" style="display: none;">
+      <div class="limit-card">
+        <div class="limit-card-title">Queue Limit</div>
+        <div class="limit-card-value" id="creationRemaining">-</div>
+        <div class="limit-card-details" id="creationDetails">-</div>
+      </div>
+      <div class="limit-card">
+        <div class="limit-card-title">Processing Limit</div>
+        <div class="limit-card-value" id="processingRemaining">-</div>
+        <div class="limit-card-details" id="processingDetails">-</div>
+      </div>
+    </div>
+    
+    <div id="limitsExplanation" style="display: none; margin-bottom: 24px; padding: 12px 16px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; font-size: 13px; opacity: 0.7; line-height: 1.5;">
+      <strong>Queue Limit</strong> controls how many new posts you can request per day. 
+      <strong>Processing Limit</strong> controls how many posts can be processed and uploaded to TikTok per day.
+    </div>
 
     <div id="loading" class="loading">Loading...</div>
     <div id="error" class="error-box" style="display: none;">
       <strong>Упс...</strong>
       <div id="errorText"></div>
+    </div>
+
+    <div id="tableExplanation" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; font-size: 13px; opacity: 0.7; line-height: 1.5;">
+      This table shows all post queues you've submitted.
+      Each queue goes through stages: <strong>pending</strong> (waiting in queue),
+      <strong>processing</strong> (being created), <strong>completed</strong> (successfully posted to TikTok), 
+      or <strong>failed</strong> (error occurred).
     </div>
 
     <div id="tableContainer" class="table-container" style="display: none;">
@@ -227,6 +294,62 @@
 
   <script>
     const API_BASE = window.location.origin.replace(/:\d+$/, '') + ':8080';
+
+    // Загружаем информацию о лимитах
+    async function loadLimits() {
+      try {
+        const res = await fetch(`${API_BASE}/limits`, {
+          method: "GET",
+          headers: { "Accept": "application/json" },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const limitsInfo = document.getElementById("limitsInfo");
+          if (limitsInfo && data.creation && data.processing) {
+            limitsInfo.style.display = "grid";
+            
+            // Queue Limit
+            const creationRemaining = document.getElementById("creationRemaining");
+            const creationDetails = document.getElementById("creationDetails");
+            if (creationRemaining && creationDetails) {
+              creationRemaining.textContent = data.creation.remaining;
+              creationDetails.textContent = `${data.creation.used} / ${data.creation.max} used`;
+              if (data.creation.remaining === 0) {
+                creationRemaining.style.color = "#f44336";
+              } else {
+                creationRemaining.style.color = "#4caf50";
+              }
+            }
+            
+            // Processing limit
+            const processingRemaining = document.getElementById("processingRemaining");
+            const processingDetails = document.getElementById("processingDetails");
+            if (processingRemaining && processingDetails) {
+              processingRemaining.textContent = data.processing.remaining;
+              processingDetails.textContent = `${data.processing.used} / ${data.processing.max} processed`;
+              if (data.processing.remaining === 0) {
+                processingRemaining.style.color = "#f44336";
+              } else {
+                processingRemaining.style.color = "#4caf50";
+              }
+            }
+            
+            // Показываем пояснение, если лимиты загружены
+            const limitsExplanation = document.getElementById("limitsExplanation");
+            if (limitsExplanation) {
+              limitsExplanation.style.display = "block";
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load limits:", e);
+      }
+    }
+
+    // Загружаем лимиты при загрузке страницы
+    loadLimits();
+    // Обновляем лимиты каждые 30 секунд
+    setInterval(loadLimits, 30000);
     let currentPage = 1;
     let totalPages = 1;
 
@@ -303,9 +426,10 @@
         }
 
         const data = await res.json();
-        
+
         document.getElementById('loading').style.display = 'none';
         document.getElementById('tableContainer').style.display = 'block';
+        document.getElementById('tableExplanation').style.display = 'block';
         document.getElementById('pagination').style.display = 'flex';
 
         renderTable(data);
@@ -327,4 +451,3 @@
   </script>
 </body>
 </html>
-
