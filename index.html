@@ -16,34 +16,22 @@
       height: 100vh;
       text-align: center;
     }
-    .box {
-      max-width: 420px;
-      padding: 24px;
-    }
-    h1 {
-      font-size: 36px;
-      margin-bottom: 12px;
-    }
+    .box { max-width: 420px; padding: 24px; }
+    h1 { font-size: 36px; margin-bottom: 12px; }
+
     p {
       font-size: 16px;
       opacity: 0.8;
       line-height: 1.5;
-    }
-    .small {
-      font-size: 13px;
-      opacity: 0.5;
-      margin-top: 24px;
-    }
-    a {
-      color: #ffffff;
-      text-decoration: underline;
-      opacity: 0.8;
-    }
-    a:hover {
-      opacity: 1;
+      white-space: pre-line;
+      margin: 0;
     }
 
-    /* Action buttons */
+    .small { font-size: 13px; opacity: 0.5; margin-top: 24px; }
+
+    a { color: #ffffff; text-decoration: underline; opacity: 0.85; }
+    a:hover { opacity: 1; }
+
     .actions {
       margin-top: 28px;
       display: flex;
@@ -63,25 +51,14 @@
       transition: transform 0.15s ease, opacity 0.15s ease;
       user-select: none;
     }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      opacity: 0.95;
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.65;
-      transform: none;
-    }
+    .btn:hover { transform: translateY(-1px); opacity: 0.95; }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { cursor: not-allowed; opacity: 0.65; transform: none; }
 
     .btn-tiktok {
       background: linear-gradient(135deg, #25f4ee, #fe2c55);
       color: #0f0f0f;
+      text-decoration: none;
     }
 
     .btn-generate {
@@ -90,9 +67,8 @@
       color: #ffffff;
     }
 
-    /* Result box */
     .result {
-      margin-top: 4px;
+      margin-top: 6px;
       padding: 14px 16px;
       border-radius: 12px;
       background: #151515;
@@ -103,8 +79,15 @@
 
     .result strong {
       display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .cta {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #2a2a2a;
+      opacity: 0.92;
     }
 
     .pill {
@@ -115,11 +98,27 @@
       border: 1px solid #2a2a2a;
       font-weight: 700;
       letter-spacing: 0.2px;
+      text-decoration: none;
     }
 
-    /* Error box */
+    .meta-row {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .open-link {
+      text-decoration: none;
+      opacity: 0.9;
+      font-weight: 600;
+      color: #69c9d0;
+    }
+    .open-link:hover { opacity: 1; text-decoration: underline; }
+
     .error-box {
-      margin-top: 4px;
+      margin-top: 6px;
       padding: 14px 16px;
       border-radius: 12px;
       background: rgba(254, 44, 85, 0.08);
@@ -127,14 +126,8 @@
       text-align: left;
       display: none;
     }
+    .error-box strong { display: block; margin-bottom: 6px; font-size: 14px; }
 
-    .error-box strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    /* TikTok link */
     .tiktok {
       margin-top: 28px;
       display: inline-flex;
@@ -142,38 +135,24 @@
       gap: 8px;
       text-decoration: none;
       font-size: 15px;
-    }
-    .tiktok svg {
-      width: 20px;
-      height: 20px;
-      fill: white;
+      color: #ffffff;
       opacity: 0.9;
     }
-    .tiktok:hover svg {
-      opacity: 1;
-    }
+    .tiktok svg { width: 20px; height: 20px; fill: white; opacity: 0.9; }
+    .tiktok:hover { opacity: 1; text-decoration: underline; }
   </style>
 </head>
+
 <body>
   <div class="box">
     <h1>AI не понял</h1>
 
-    <p>
-      When AI tries its best.<br />
-      Sometimes it doesn't.
-    </p>
+    <p>When AI tries its best.<br />Sometimes it doesn't.</p>
 
-    <p>
-      Personal experimental project.<br />
-      No data collection. No tracking.
-    </p>
+    <p style="margin-top:12px;">Personal experimental project.<br />No data collection. No tracking.</p>
 
-    <!-- Action buttons -->
     <div class="actions">
-      <a
-        class="btn btn-tiktok"
-        href="https://70ec38ff6d36.ngrok-free.app/auth/start"
-      >
+      <a class="btn btn-tiktok" href="https://70ec38ff6d36.ngrok-free.app/auth/start">
         Sign in with TikTok
       </a>
 
@@ -181,29 +160,35 @@
         Generate post
       </button>
 
-      <!-- Error box:
-           A) Access denied (not allowed account) -> URL has ?error=forbidden OR ?error=login_failed
-           B) Kazus (network/server/unexpected response) -> rendered by JS on failures
-      -->
       <div id="errorBox" class="error-box" aria-live="polite">
         <strong id="errorTitle">⚠️ Error</strong>
         <div id="errorText">Something went wrong.</div>
       </div>
 
-      <!-- Result box -->
       <div id="result" class="result" aria-live="polite">
-        <strong id="resultTitle">✅ Generated</strong>
-        Joke number: <span id="jokeId" class="pill">—</span>
+        <strong id="resultHeader">🤖 AI is thinking…</strong>
+
+        <!-- This is "story" from backend -->
+        <p id="resultDescription"></p>
+
+        <!-- CTA is always in HTML -->
+        <div class="cta">
+          <div>Ищи её позже в TikTok по хэштегу <a id="hashtagLink" class="pill" href="#" target="_blank" rel="noopener noreferrer">#—</a></div>
+          <div style="margin-top:8px;">
+            Или на странице нашего аккаунта:
+            <a class="open-link" href="https://www.tiktok.com/@ai_ne_ponyal" target="_blank" rel="noopener noreferrer">@ai_ne_ponyal</a>
+          </div>
+
+          <div class="meta-row">
+            <a id="tiktokSearchLink" class="open-link" href="#" target="_blank" rel="noopener noreferrer">
+              🔍 Открыть поиск TikTok
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- TikTok link -->
-    <a
-      class="tiktok"
-      href="https://www.tiktok.com/@ai_ne_ponyal"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <a class="tiktok" href="https://www.tiktok.com/@ai_ne_ponyal" target="_blank" rel="noopener noreferrer">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M21 8.3c-1.5 0-3-.5-4.2-1.4v7.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .6 0 .9.1v3.1a2.9 2.9 0 1 0 2 2.8V2h3.2c.3 2.1 2 3.8 4.2 4.1v2.2z"/>
       </svg>
@@ -226,13 +211,14 @@
     const errorText = document.getElementById("errorText");
 
     const result = document.getElementById("result");
-    const resultTitle = document.getElementById("resultTitle");
-    const jokeId = document.getElementById("jokeId");
+    const resultHeader = document.getElementById("resultHeader");
+    const resultDescription = document.getElementById("resultDescription");
+
+    const hashtagLink = document.getElementById("hashtagLink");
+    const tiktokSearchLink = document.getElementById("tiktokSearchLink");
 
     function showError(title, text) {
-      // Always hide result on error
       result.style.display = "none";
-
       errorBox.style.display = "block";
       errorTitle.textContent = title;
       errorText.textContent = text;
@@ -242,49 +228,41 @@
       errorBox.style.display = "none";
     }
 
-    function showResult(text) {
-      hideError();
-      result.style.display = "block";
-      resultTitle.textContent = "✅ Generated";
-      jokeId.textContent = text;
+    function tiktokSearchUrlByHashtag(tagWithoutHash) {
+      return `https://www.tiktok.com/search?q=%23${encodeURIComponent(tagWithoutHash)}`;
     }
 
-    // === ERROR TYPE A: "Not me" login (backend redirect) ===
-    // Accept both:
-    //   ?error=forbidden
-    //   ?error=login_failed
-    (function renderAccessDeniedIfAny() {
-      const params = new URLSearchParams(window.location.search);
-      const err = params.get("error");
+    function showResult(data) {
+      hideError();
+      result.style.display = "block";
 
-      if (err !== "forbidden" && err !== "login_failed") return;
+      const id = String(data.joke_id);
+      const hashtag = `#${id}`;
+      const searchUrl = tiktokSearchUrlByHashtag(id);
 
-      showError(
-        "🚫🤖 AI is confused",
-        "This TikTok account doesn’t match the vibe of this project."
-      );
+      resultHeader.textContent = data.header || "🤖 AI is thinking…";
+      resultDescription.textContent = data.description || "";
 
-      // Clean URL so it doesn't stick on refresh
-      window.history.replaceState({}, document.title, window.location.pathname);
-    })();
+      hashtagLink.textContent = hashtag;
+      hashtagLink.href = searchUrl;
+      tiktokSearchLink.href = searchUrl;
+    }
 
-    // === Generate post (public) ===
     btn.addEventListener("click", async () => {
       btn.disabled = true;
-      btn.textContent = "Generating…";
+      btn.textContent = "AI is thinking…";
 
       try {
         const res = await fetch(`${API_BASE}/post/create`, {
           method: "GET",
-          headers: { "Accept": "application/json", "ngrok-skip-browser-warning": true },
+          headers: {
+            "Accept": "application/json",
+            "ngrok-skip-browser-warning": "true"
+          },
         });
 
         if (!res.ok) {
-          // ERROR TYPE B: kazus (server returned non-2xx)
-          showError(
-            "❌ Something went wrong",
-            "We couldn't generate a post right now. Please try again."
-          );
+          showError("🤖 AI needs a minute", "Couldn’t start thinking right now. Please try again.");
           return;
         }
 
@@ -292,33 +270,19 @@
         try {
           data = await res.json();
         } catch {
-          // ERROR TYPE B: kazus (not JSON)
-          showError(
-            "❌ Something went wrong",
-            "Unexpected server response. Please try again."
-          );
+          showError("🤖 AI got distracted", "Unexpected server response. Please try again.");
           return;
         }
 
-        const id = data.joke_id ?? data.jokeId ?? data.number ?? data.id;
-
-        if (!id) {
-          // ERROR TYPE B: kazus (missing expected field)
-          showError(
-            "❌ Something went wrong",
-            "Invalid response from server. Please try again."
-          );
+        if (!data || !data.joke_id) {
+          showError("🤖 AI forgot the hashtag", "Server response is missing joke_id.");
           return;
         }
 
-        showResult(String(id));
+        showResult(data);
       } catch (e) {
-        // ERROR TYPE B: kazus (network/CORS/ngrok down)
         console.error(e);
-        showError(
-          "❌ Something went wrong",
-          "Unable to reach the server. Please try again."
-        );
+        showError("🤖 AI can’t reach TikTok vibes", "Unable to reach the server. Please try again.");
       } finally {
         btn.disabled = false;
         btn.textContent = "Generate post";
