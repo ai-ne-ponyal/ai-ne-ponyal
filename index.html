@@ -16,14 +16,16 @@
       height: 100vh;
       text-align: center;
     }
+
     .box { max-width: 420px; padding: 24px; }
+
     h1 { font-size: 36px; margin-bottom: 12px; }
 
     p {
       font-size: 16px;
       opacity: 0.8;
       line-height: 1.5;
-      white-space: pre-line;
+      white-space: pre-line; /* preserves \n from backend */
       margin: 0;
     }
 
@@ -32,6 +34,7 @@
     a { color: #ffffff; text-decoration: underline; opacity: 0.85; }
     a:hover { opacity: 1; }
 
+    /* Action buttons */
     .actions {
       margin-top: 28px;
       display: flex;
@@ -51,6 +54,7 @@
       transition: transform 0.15s ease, opacity 0.15s ease;
       user-select: none;
     }
+
     .btn:hover { transform: translateY(-1px); opacity: 0.95; }
     .btn:active { transform: translateY(0); }
     .btn:disabled { cursor: not-allowed; opacity: 0.65; transform: none; }
@@ -67,6 +71,7 @@
       color: #ffffff;
     }
 
+    /* Result box */
     .result {
       margin-top: 6px;
       padding: 14px 16px;
@@ -117,6 +122,22 @@
     }
     .open-link:hover { opacity: 1; text-decoration: underline; }
 
+    .share-btn {
+      background: #1f1f1f;
+      border: 1px solid #2a2a2a;
+      color: #ffffff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .share-btn:hover { transform: translateY(-1px); opacity: 0.95; }
+    .share-btn:active { transform: translateY(0); }
+    .share-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Error box */
     .error-box {
       margin-top: 6px;
       padding: 14px 16px;
@@ -128,6 +149,7 @@
     }
     .error-box strong { display: block; margin-bottom: 6px; font-size: 14px; }
 
+    /* TikTok link */
     .tiktok {
       margin-top: 28px;
       display: inline-flex;
@@ -165,24 +187,38 @@
         <div id="errorText">Something went wrong.</div>
       </div>
 
+      <!-- Shareable card -->
       <div id="result" class="result" aria-live="polite">
         <strong id="resultHeader">🤖 AI is thinking…</strong>
 
-        <!-- This is "story" from backend -->
+        <!-- Story from backend -->
         <p id="resultDescription"></p>
 
-        <!-- CTA is always in HTML -->
+        <!-- CTA in HTML -->
         <div class="cta">
-          <div>Ищи её позже в TikTok по хэштегу <a id="hashtagLink" class="pill" href="#" target="_blank" rel="noopener noreferrer">#—</a></div>
-          <div style="margin-top:8px;">
+          <div style="font-weight:700; font-size:18px; opacity:0.95;">
+            Ищи её позже в TikTok по хэштегу
+          </div>
+
+          <div style="margin-top:10px;">
+            <a id="hashtagLink" class="pill" href="#" target="_blank" rel="noopener noreferrer">#—</a>
+          </div>
+
+          <div style="margin-top:12px; opacity:0.92;">
             Или на странице нашего аккаунта:
-            <a class="open-link" href="https://www.tiktok.com/@ai_ne_ponyal" target="_blank" rel="noopener noreferrer">@ai_ne_ponyal</a>
+            <a class="open-link" href="https://www.tiktok.com/@ai_ne_ponyal" target="_blank" rel="noopener noreferrer">
+              @ai_ne_ponyal
+            </a>
           </div>
 
           <div class="meta-row">
             <a id="tiktokSearchLink" class="open-link" href="#" target="_blank" rel="noopener noreferrer">
               🔍 Открыть поиск TikTok
             </a>
+
+            <button id="shareCardBtn" class="share-btn" type="button">
+              📤 Поделиться карточкой
+            </button>
           </div>
         </div>
       </div>
@@ -201,6 +237,9 @@
     </div>
   </div>
 
+  <!-- Library for DOM -> PNG -->
+  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+
   <script>
     const API_BASE = "https://70ec38ff6d36.ngrok-free.app";
 
@@ -210,18 +249,24 @@
     const errorTitle = document.getElementById("errorTitle");
     const errorText = document.getElementById("errorText");
 
-    const result = document.getElementById("result");
+    const resultCard = document.getElementById("result");
     const resultHeader = document.getElementById("resultHeader");
     const resultDescription = document.getElementById("resultDescription");
 
     const hashtagLink = document.getElementById("hashtagLink");
     const tiktokSearchLink = document.getElementById("tiktokSearchLink");
 
+    const shareCardBtn = document.getElementById("shareCardBtn");
+    shareCardBtn.disabled = true;
+
+    let lastResult = null;
+
     function showError(title, text) {
-      result.style.display = "none";
+      resultCard.style.display = "none";
       errorBox.style.display = "block";
       errorTitle.textContent = title;
       errorText.textContent = text;
+      shareCardBtn.disabled = true;
     }
 
     function hideError() {
@@ -234,19 +279,99 @@
 
     function showResult(data) {
       hideError();
-      result.style.display = "block";
+      resultCard.style.display = "block";
 
       const id = String(data.joke_id);
       const hashtag = `#${id}`;
       const searchUrl = tiktokSearchUrlByHashtag(id);
 
-      resultHeader.textContent = data.header || "🤖 AI is thinking…";
-      resultDescription.textContent = data.description || "";
+      resultHeader.textContent = data.header || "🧠 AI готовит что-то смешное";
+      resultDescription.textContent = data.description || "Нужно немного времени. AI уже готовится думать.";
 
       hashtagLink.textContent = hashtag;
       hashtagLink.href = searchUrl;
       tiktokSearchLink.href = searchUrl;
+
+      lastResult = { ...data, _searchUrl: searchUrl };
+      shareCardBtn.disabled = false;
     }
+
+    function dataUrlToFile(dataUrl, filename) {
+      const arr = dataUrl.split(",");
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) u8arr[n] = bstr.charCodeAt(n);
+      return new File([u8arr], filename, { type: mime });
+    }
+
+    async function shareCardAsImage() {
+      // Render ONLY the card (#result) to PNG
+      const dataUrl = await window.htmlToImage.toPng(resultCard, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#151515", // keep card background consistent
+      });
+
+      const file = dataUrlToFile(dataUrl, "ai-ne-ponyal.png");
+
+      // 1) Best: native share with file (mostly mobile)
+      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+        await navigator.share({
+          title: "AI не понял",
+          files: [file],
+        });
+        return { mode: "share" };
+      }
+
+      // 2) Copy image to clipboard (works in some browsers)
+      if (navigator.clipboard && window.ClipboardItem) {
+        const blob = await (await fetch(dataUrl)).blob();
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        return { mode: "copy" };
+      }
+
+      // 3) Fallback: download
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "ai-ne-ponyal.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return { mode: "download" };
+    }
+
+    shareCardBtn.addEventListener("click", async () => {
+      if (!lastResult) return;
+
+      const oldText = shareCardBtn.textContent;
+      shareCardBtn.disabled = true;
+      shareCardBtn.textContent = "Готовлю карточку…";
+
+      try {
+        const { mode } = await shareCardAsImage();
+
+        // Small UX feedback without alerts
+        if (mode === "copy") {
+          shareCardBtn.textContent = "✅ Скопировано";
+        } else if (mode === "download") {
+          shareCardBtn.textContent = "⬇️ Скачано";
+        } else {
+          shareCardBtn.textContent = "✅ Отправлено";
+        }
+
+        setTimeout(() => {
+          shareCardBtn.textContent = oldText;
+          shareCardBtn.disabled = false;
+        }, 1100);
+      } catch (e) {
+        console.error(e);
+        shareCardBtn.textContent = oldText;
+        shareCardBtn.disabled = false;
+        showError("🤖 AI отвлёкся", "Не получилось поделиться карточкой. Попробуй ещё раз.");
+      }
+    });
 
     btn.addEventListener("click", async () => {
       btn.disabled = true;
@@ -262,7 +387,7 @@
         });
 
         if (!res.ok) {
-          showError("🤖 AI needs a minute", "Couldn’t start thinking right now. Please try again.");
+          showError("🤖 AI нужно немного времени", "Сейчас не получилось начать. Попробуй ещё раз.");
           return;
         }
 
@@ -270,19 +395,19 @@
         try {
           data = await res.json();
         } catch {
-          showError("🤖 AI got distracted", "Unexpected server response. Please try again.");
+          showError("🤖 AI задумался слишком глубоко", "Неожиданный ответ сервера. Попробуй ещё раз.");
           return;
         }
 
         if (!data || !data.joke_id) {
-          showError("🤖 AI forgot the hashtag", "Server response is missing joke_id.");
+          showError("🤖 AI забыл номер шутки", "В ответе сервера нет joke_id.");
           return;
         }
 
         showResult(data);
       } catch (e) {
         console.error(e);
-        showError("🤖 AI can’t reach TikTok vibes", "Unable to reach the server. Please try again.");
+        showError("🤖 AI не добрался до сервера", "Не удалось связаться с сервером. Попробуй ещё раз.");
       } finally {
         btn.disabled = false;
         btn.textContent = "Generate post";
