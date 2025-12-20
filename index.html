@@ -16,16 +16,14 @@
       height: 100vh;
       text-align: center;
     }
-
     .box { max-width: 420px; padding: 24px; }
-
     h1 { font-size: 36px; margin-bottom: 12px; }
 
     p {
       font-size: 16px;
       opacity: 0.8;
       line-height: 1.5;
-      white-space: pre-line; /* preserves \n from backend */
+      white-space: pre-line;
       margin: 0;
     }
 
@@ -34,7 +32,6 @@
     a { color: #ffffff; text-decoration: underline; opacity: 0.85; }
     a:hover { opacity: 1; }
 
-    /* Action buttons */
     .actions {
       margin-top: 28px;
       display: flex;
@@ -54,7 +51,6 @@
       transition: transform 0.15s ease, opacity 0.15s ease;
       user-select: none;
     }
-
     .btn:hover { transform: translateY(-1px); opacity: 0.95; }
     .btn:active { transform: translateY(0); }
     .btn:disabled { cursor: not-allowed; opacity: 0.65; transform: none; }
@@ -71,7 +67,6 @@
       color: #ffffff;
     }
 
-    /* Result box */
     .result {
       margin-top: 6px;
       padding: 14px 16px;
@@ -137,7 +132,6 @@
     .share-btn:active { transform: translateY(0); }
     .share-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Error box */
     .error-box {
       margin-top: 6px;
       padding: 14px 16px;
@@ -149,7 +143,6 @@
     }
     .error-box strong { display: block; margin-bottom: 6px; font-size: 14px; }
 
-    /* TikTok link */
     .tiktok {
       margin-top: 28px;
       display: inline-flex;
@@ -170,7 +163,6 @@
     <h1>AI не понял</h1>
 
     <p>When AI tries its best.<br />Sometimes it doesn't.</p>
-
     <p style="margin-top:12px;">Personal experimental project.<br />No data collection. No tracking.</p>
 
     <div class="actions">
@@ -189,12 +181,10 @@
 
       <!-- Shareable card -->
       <div id="result" class="result" aria-live="polite">
-        <strong id="resultHeader">🤖 AI is thinking…</strong>
+        <strong id="resultHeader">🧠 AI готовит что-то смешное</strong>
 
-        <!-- Story from backend -->
         <p id="resultDescription"></p>
 
-        <!-- CTA in HTML -->
         <div class="cta">
           <div style="font-weight:700; font-size:18px; opacity:0.95;">
             Ищи её позже в TikTok по хэштегу
@@ -216,7 +206,7 @@
               🔍 Открыть поиск TikTok
             </a>
 
-            <button id="shareCardBtn" class="share-btn" type="button">
+            <button id="shareCardBtn" class="share-btn" type="button" disabled>
               📤 Поделиться карточкой
             </button>
           </div>
@@ -237,8 +227,9 @@
     </div>
   </div>
 
-  <!-- Library for DOM -> PNG -->
-  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+  <!-- Try load html-to-image from two CDNs -->
+  <script defer src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
 
   <script>
     const API_BASE = "https://70ec38ff6d36.ngrok-free.app";
@@ -257,7 +248,6 @@
     const tiktokSearchLink = document.getElementById("tiktokSearchLink");
 
     const shareCardBtn = document.getElementById("shareCardBtn");
-    shareCardBtn.disabled = true;
 
     let lastResult = null;
 
@@ -296,6 +286,36 @@
       shareCardBtn.disabled = false;
     }
 
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    async function ensureHtmlToImageLoaded() {
+      if (window.htmlToImage && typeof window.htmlToImage.toPng === "function") return;
+
+      // If both defer scripts above failed (blocked/offline), try dynamic load
+      const candidates = [
+        "https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js",
+        "https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js",
+      ];
+
+      for (const url of candidates) {
+        try {
+          await loadScript(url);
+          if (window.htmlToImage && typeof window.htmlToImage.toPng === "function") return;
+        } catch {}
+      }
+
+      throw new Error("html-to-image not available");
+    }
+
     function dataUrlToFile(dataUrl, filename) {
       const arr = dataUrl.split(",");
       const mime = arr[0].match(/:(.*?);/)[1];
@@ -307,32 +327,27 @@
     }
 
     async function shareCardAsImage() {
-      // Render ONLY the card (#result) to PNG
+      await ensureHtmlToImageLoaded();
+
       const dataUrl = await window.htmlToImage.toPng(resultCard, {
         pixelRatio: 2,
         cacheBust: true,
-        backgroundColor: "#151515", // keep card background consistent
+        backgroundColor: "#151515",
       });
 
       const file = dataUrlToFile(dataUrl, "ai-ne-ponyal.png");
 
-      // 1) Best: native share with file (mostly mobile)
       if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-        await navigator.share({
-          title: "AI не понял",
-          files: [file],
-        });
+        await navigator.share({ title: "AI не понял", files: [file] });
         return { mode: "share" };
       }
 
-      // 2) Copy image to clipboard (works in some browsers)
       if (navigator.clipboard && window.ClipboardItem) {
         const blob = await (await fetch(dataUrl)).blob();
         await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
         return { mode: "copy" };
       }
 
-      // 3) Fallback: download
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = "ai-ne-ponyal.png";
@@ -352,14 +367,9 @@
       try {
         const { mode } = await shareCardAsImage();
 
-        // Small UX feedback without alerts
-        if (mode === "copy") {
-          shareCardBtn.textContent = "✅ Скопировано";
-        } else if (mode === "download") {
-          shareCardBtn.textContent = "⬇️ Скачано";
-        } else {
-          shareCardBtn.textContent = "✅ Отправлено";
-        }
+        if (mode === "copy") shareCardBtn.textContent = "✅ Скопировано";
+        else if (mode === "download") shareCardBtn.textContent = "⬇️ Скачано";
+        else shareCardBtn.textContent = "✅ Отправлено";
 
         setTimeout(() => {
           shareCardBtn.textContent = oldText;
