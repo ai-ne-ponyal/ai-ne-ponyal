@@ -303,9 +303,9 @@
     <p style="margin-top:12px;">Personal experimental project.<br />No data collection. No tracking.</p>
 
     <div class="actions">
-      <a class="btn btn-tiktok" href="https://70ec38ff6d36.ngrok-free.app/auth/start">
+      <button id="tiktokAuthBtn" class="btn btn-tiktok" type="button">
         Sign in with TikTok
-      </a>
+      </button>
 
       <button id="genBtn" class="btn btn-generate" type="button">
         Generate post
@@ -371,7 +371,8 @@
 
     <div class="small">
       <a href="./privacy.html">Privacy Policy</a> ·
-      <a href="./terms.html">Terms of Service</a>
+      <a href="./terms.html">Terms of Service</a> ·
+      <a href="./intentions.html">Your Intentions</a>
     </div>
   </div>
 
@@ -404,6 +405,7 @@
     const API_BASE = "https://70ec38ff6d36.ngrok-free.app";
 
     const btn = document.getElementById("genBtn");
+    const tiktokAuthBtn = document.getElementById("tiktokAuthBtn");
 
     const errorBox = document.getElementById("errorBox");
     const errorTitle = document.getElementById("errorTitle");
@@ -690,6 +692,28 @@
       } finally {
         btn.disabled = false;
         btn.textContent = "Generate post";
+      }
+    });
+
+    tiktokAuthBtn.addEventListener("click", async () => {
+      tiktokAuthBtn.disabled = true;
+      tiktokAuthBtn.textContent = "Checking...";
+
+      try {
+        // Проверяем доступность API перед редиректом
+        const checkRes = await fetch(`${API_BASE}/api/intentions?page=1&page_size=1`, {
+          method: "GET",
+          headers: { "Accept": "application/json", "ngrok-skip-browser-warning": "true" },
+          signal: AbortSignal.timeout(5000) // 5 секунд таймаут
+        });
+
+        // Если API доступен, делаем редирект
+        window.location.href = `${API_BASE}/auth/start`;
+      } catch (e) {
+        console.error(e);
+        showError("🤖 Сервер недоступен", "Ушел отдыхать. Попробуйте позже.");
+        tiktokAuthBtn.disabled = false;
+        tiktokAuthBtn.textContent = "Sign in with TikTok";
       }
     });
   </script>
