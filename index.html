@@ -23,7 +23,7 @@
       font-size: 16px;
       opacity: 0.8;
       line-height: 1.5;
-      white-space: pre-line;
+      white-space: pre-line; /* preserves \n from backend */
       margin: 0;
     }
 
@@ -67,6 +67,7 @@
       color: #ffffff;
     }
 
+    /* Shareable result card */
     .result {
       margin-top: 6px;
       padding: 14px 16px;
@@ -182,7 +183,6 @@
       <!-- Shareable card -->
       <div id="result" class="result" aria-live="polite">
         <strong id="resultHeader">🧠 AI готовит что-то смешное</strong>
-
         <p id="resultDescription"></p>
 
         <div class="cta">
@@ -206,9 +206,22 @@
               🔍 Открыть поиск TikTok
             </a>
 
-            <button id="shareCardBtn" class="share-btn" type="button" disabled>
-              📤 Поделиться карточкой
+            <!-- Buttons will be shown/hidden depending on browser capabilities -->
+            <button id="shareNativeBtn" class="share-btn" type="button" disabled style="display:none;">
+              📤 Share
             </button>
+
+            <button id="copyImageBtn" class="share-btn" type="button" disabled style="display:none;">
+              📋 Copy card
+            </button>
+
+            <button id="downloadPngBtn" class="share-btn" type="button" disabled style="display:none;">
+              ⬇️ Download PNG
+            </button>
+          </div>
+
+          <div id="shareHint" style="margin-top:10px; font-size:13px; opacity:0.6; display:none;">
+            Tip: for Telegram, “Copy card” → paste into chat works best.
           </div>
         </div>
       </div>
@@ -227,7 +240,7 @@
     </div>
   </div>
 
-  <!-- Try load html-to-image from two CDNs -->
+  <!-- Load html-to-image (two CDNs, then dynamic fallback in JS) -->
   <script defer src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
 
@@ -247,7 +260,10 @@
     const hashtagLink = document.getElementById("hashtagLink");
     const tiktokSearchLink = document.getElementById("tiktokSearchLink");
 
-    const shareCardBtn = document.getElementById("shareCardBtn");
+    const shareNativeBtn = document.getElementById("shareNativeBtn");
+    const copyImageBtn = document.getElementById("copyImageBtn");
+    const downloadPngBtn = document.getElementById("downloadPngBtn");
+    const shareHint = document.getElementById("shareHint");
 
     let lastResult = null;
 
@@ -256,16 +272,44 @@
       errorBox.style.display = "block";
       errorTitle.textContent = title;
       errorText.textContent = text;
-      shareCardBtn.disabled = true;
+      disableShareButtons();
     }
 
     function hideError() {
       errorBox.style.display = "none";
     }
 
+    function disableShareButtons() {
+      [shareNativeBtn, copyImageBtn, downloadPngBtn].forEach(b => b.disabled = true);
+    }
+
+    function setShareButtonsEnabled(enabled) {
+      [shareNativeBtn, copyImageBtn, downloadPngBtn].forEach(b => {
+        if (b.style.display !== "none") b.disabled = !enabled;
+      });
+    }
+
     function tiktokSearchUrlByHashtag(tagWithoutHash) {
       return `https://www.tiktok.com/search?q=%23${encodeURIComponent(tagWithoutHash)}`;
     }
+
+    function detectShareCapabilities() {
+      const canNativeShare = !!(navigator.share && navigator.canShare);
+      const canCopyImage = !!(navigator.clipboard && window.ClipboardItem);
+      const canDownload = true;
+
+      // Show the best options for each environment
+      // Native share with files is tricky: we will enable only if canShare(files) is true AFTER we create a file.
+      // For now, we keep it visible if navigator.share exists.
+      shareNativeBtn.style.display = canNativeShare ? "" : "none";
+      copyImageBtn.style.display = canCopyImage ? "" : "none";
+      downloadPngBtn.style.display = canDownload ? "" : "none";
+
+      // Telegram UX tip
+      shareHint.style.display = (copyImageBtn.style.display !== "none") ? "" : "none";
+    }
+
+    detectShareCapabilities();
 
     function showResult(data) {
       hideError();
@@ -283,7 +327,9 @@
       tiktokSearchLink.href = searchUrl;
 
       lastResult = { ...data, _searchUrl: searchUrl };
-      shareCardBtn.disabled = false;
+
+      // enable visible share buttons
+      setShareButtonsEnabled(true);
     }
 
     function loadScript(src) {
@@ -300,7 +346,6 @@
     async function ensureHtmlToImageLoaded() {
       if (window.htmlToImage && typeof window.htmlToImage.toPng === "function") return;
 
-      // If both defer scripts above failed (blocked/offline), try dynamic load
       const candidates = [
         "https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js",
         "https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js",
@@ -316,6 +361,17 @@
       throw new Error("html-to-image not available");
     }
 
+    async function renderCardToPngDataUrl() {
+      await ensureHtmlToImageLoaded();
+
+      // Render ONLY the card (#result) to PNG
+      return await window.htmlToImage.toPng(resultCard, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: "#151515",
+      });
+    }
+
     function dataUrlToFile(dataUrl, filename) {
       const arr = dataUrl.split(",");
       const mime = arr[0].match(/:(.*?);/)[1];
@@ -326,66 +382,110 @@
       return new File([u8arr], filename, { type: mime });
     }
 
-    async function shareCardAsImage() {
-      await ensureHtmlToImageLoaded();
+    async function copyCardImageToClipboard(dataUrl) {
+      const blob = await (await fetch(dataUrl)).blob();
+      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    }
 
-      const dataUrl = await window.htmlToImage.toPng(resultCard, {
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: "#151515",
-      });
-
-      const file = dataUrlToFile(dataUrl, "ai-ne-ponyal.png");
-
-      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-        await navigator.share({ title: "AI не понял", files: [file] });
-        return { mode: "share" };
-      }
-
-      if (navigator.clipboard && window.ClipboardItem) {
-        const blob = await (await fetch(dataUrl)).blob();
-        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-        return { mode: "copy" };
-      }
-
+    function downloadDataUrl(dataUrl, filename) {
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = "ai-ne-ponyal.png";
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      return { mode: "download" };
     }
 
-    shareCardBtn.addEventListener("click", async () => {
+    function setButtonBusy(btnEl, busyText) {
+      const old = btnEl.textContent;
+      btnEl.disabled = true;
+      btnEl.textContent = busyText;
+      return () => {
+        btnEl.textContent = old;
+        // enabled back only if result is visible
+        btnEl.disabled = (resultCard.style.display === "none");
+      };
+    }
+
+    async function nativeSharePngFile(file) {
+      // IMPORTANT:
+      // Even if navigator.share works, some targets (Telegram) may ignore files.
+      // We still try, but we only claim success if share() resolves.
+      await navigator.share({
+        title: "AI не понял",
+        text: " ", // avoid title-only shares
+        files: [file],
+      });
+    }
+
+    shareNativeBtn.addEventListener("click", async () => {
       if (!lastResult) return;
 
-      const oldText = shareCardBtn.textContent;
-      shareCardBtn.disabled = true;
-      shareCardBtn.textContent = "Готовлю карточку…";
-
+      const restore = setButtonBusy(shareNativeBtn, "Sharing…");
       try {
-        const { mode } = await shareCardAsImage();
+        const dataUrl = await renderCardToPngDataUrl();
+        const file = dataUrlToFile(dataUrl, "ai-ne-ponyal.png");
 
-        if (mode === "copy") shareCardBtn.textContent = "✅ Скопировано";
-        else if (mode === "download") shareCardBtn.textContent = "⬇️ Скачано";
-        else shareCardBtn.textContent = "✅ Отправлено";
+        // If browser says it can't share files, fallback immediately
+        if (!navigator.canShare || !navigator.canShare({ files: [file] })) {
+          // Fallback to copy if possible, else download
+          if (copyImageBtn.style.display !== "none") {
+            await copyCardImageToClipboard(dataUrl);
+            shareNativeBtn.textContent = "✅ Copied";
+          } else {
+            downloadDataUrl(dataUrl, "ai-ne-ponyal.png");
+            shareNativeBtn.textContent = "⬇️ Downloaded";
+          }
+          setTimeout(restore, 1000);
+          return;
+        }
 
-        setTimeout(() => {
-          shareCardBtn.textContent = oldText;
-          shareCardBtn.disabled = false;
-        }, 1100);
+        await nativeSharePngFile(file);
+        shareNativeBtn.textContent = "✅ Shared";
+        setTimeout(restore, 1000);
       } catch (e) {
         console.error(e);
-        shareCardBtn.textContent = oldText;
-        shareCardBtn.disabled = false;
-        showError("🤖 AI отвлёкся", "Не получилось поделиться карточкой. Попробуй ещё раз.");
+        restore();
+        showError("🤖 AI отвлёкся", "Не получилось поделиться карточкой. Попробуй “Copy card” или “Download PNG”.");
+      }
+    });
+
+    copyImageBtn.addEventListener("click", async () => {
+      if (!lastResult) return;
+
+      const restore = setButtonBusy(copyImageBtn, "Copying…");
+      try {
+        const dataUrl = await renderCardToPngDataUrl();
+        await copyCardImageToClipboard(dataUrl);
+        copyImageBtn.textContent = "✅ Copied";
+        setTimeout(restore, 1000);
+      } catch (e) {
+        console.error(e);
+        restore();
+        showError("🤖 AI отвлёкся", "Не получилось скопировать карточку. Попробуй “Download PNG”.");
+      }
+    });
+
+    downloadPngBtn.addEventListener("click", async () => {
+      if (!lastResult) return;
+
+      const restore = setButtonBusy(downloadPngBtn, "Preparing…");
+      try {
+        const dataUrl = await renderCardToPngDataUrl();
+        downloadDataUrl(dataUrl, "ai-ne-ponyal.png");
+        downloadPngBtn.textContent = "⬇️ Downloaded";
+        setTimeout(restore, 1000);
+      } catch (e) {
+        console.error(e);
+        restore();
+        showError("🤖 AI отвлёкся", "Не получилось сохранить PNG. Попробуй ещё раз.");
       }
     });
 
     btn.addEventListener("click", async () => {
       btn.disabled = true;
       btn.textContent = "AI is thinking…";
+      disableShareButtons();
 
       try {
         const res = await fetch(`${API_BASE}/post/create`, {
