@@ -43,7 +43,45 @@
       opacity: 1;
     }
 
-    /* TikTok block */
+    /* Action buttons */
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-tiktok {
+      background: linear-gradient(135deg, #25f4ee, #fe2c55);
+      color: #0f0f0f;
+    }
+
+    .btn-generate {
+      background: #1f1f1f;
+      border: 1px solid #2a2a2a;
+      color: #ffffff;
+    }
+
+    /* TikTok link */
     .tiktok {
       margin-top: 28px;
       display: inline-flex;
@@ -77,6 +115,23 @@
       No data collection. No tracking.
     </p>
 
+    <!-- Action buttons -->
+    <div class="actions">
+      <a
+        class="btn btn-tiktok"
+        href="https://70ec38ff6d36.ngrok-free.app/auth/start"
+      >
+        Sign in with TikTok
+      </a>
+
+      <a
+        class="btn btn-generate"
+        href="https://70ec38ff6d36.ngrok-free.app/post/create"
+      >
+        Generate post
+      </a>
+    </div>
+
     <!-- TikTok link -->
     <a
       class="tiktok"
@@ -84,7 +139,6 @@
       target="_blank"
       rel="noopener noreferrer"
     >
-      <!-- TikTok icon (SVG) -->
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M21 8.3c-1.5 0-3-.5-4.2-1.4v7.2a6.1 6.1 0 1 1-6.1-6.1c.3 0 .6 0 .9.1v3.1a2.9 2.9 0 1 0 2 2.8V2h3.2c.3 2.1 2 3.8 4.2 4.1v2.2z"/>
       </svg>
