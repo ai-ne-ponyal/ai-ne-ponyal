@@ -13,17 +13,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       text-align: center;
     }
-    .box { max-width: 420px; padding: 24px; }
-    h1 { font-size: 36px; margin-bottom: 12px; }
+
+    .box { max-width: 420px; padding: 24px; width: 100%; }
+    h1 { font-size: 36px; margin: 0 0 12px; }
 
     p {
       font-size: 16px;
       opacity: 0.8;
       line-height: 1.5;
-      white-space: pre-line; /* preserves \n from backend */
+      white-space: pre-line;
       margin: 0;
     }
 
@@ -67,72 +68,6 @@
       color: #ffffff;
     }
 
-    /* Shareable result card */
-    .result {
-      margin-top: 6px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      background: #151515;
-      border: 1px solid #2a2a2a;
-      text-align: left;
-      display: none;
-    }
-
-    .result strong {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 15px;
-    }
-
-    .cta {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #2a2a2a;
-      opacity: 0.92;
-    }
-
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #1f1f1f;
-      border: 1px solid #2a2a2a;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      text-decoration: none;
-    }
-
-    .meta-row {
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .open-link {
-      text-decoration: none;
-      opacity: 0.9;
-      font-weight: 600;
-      color: #69c9d0;
-    }
-    .open-link:hover { opacity: 1; text-decoration: underline; }
-
-    .share-btn {
-      background: #1f1f1f;
-      border: 1px solid #2a2a2a;
-      color: #ffffff;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      white-space: nowrap;
-    }
-    .share-btn:hover { transform: translateY(-1px); opacity: 0.95; }
-    .share-btn:active { transform: translateY(0); }
-    .share-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
     .error-box {
       margin-top: 6px;
       padding: 14px 16px;
@@ -143,6 +78,110 @@
       display: none;
     }
     .error-box strong { display: block; margin-bottom: 6px; font-size: 14px; }
+
+    /* === Compact RESULT shown on page === */
+    .result {
+      margin-top: 6px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #151515;
+      border: 1px solid #2a2a2a;
+      text-align: center;
+      display: none;
+    }
+
+    .result strong {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
+      letter-spacing: -0.2px;
+    }
+
+    .cta {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #2a2a2a;
+      opacity: 0.92;
+      text-align: center;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #1f1f1f;
+      border: 1px solid #2a2a2a;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .open-link {
+      text-decoration: none;
+      opacity: 0.9;
+      font-weight: 700;
+      color: #69c9d0;
+    }
+    .open-link:hover { opacity: 1; text-decoration: underline; }
+
+    .meta-row {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* === NEW: nicer buttons + inline SVG icons === */
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 10px;
+      border-radius: 14px;
+
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(6px);
+
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .share-btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.10); }
+    .share-btn:active { transform: translateY(0); }
+    .share-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .share-btn .icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 18px;
+    }
+
+    .share-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      opacity: 0.9;
+    }
+
+    #shareHint {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: 0.6;
+      display: none;
+      text-align: left;
+    }
 
     .tiktok {
       margin-top: 28px;
@@ -156,6 +195,103 @@
     }
     .tiktok svg { width: 20px; height: 20px; fill: white; opacity: 0.9; }
     .tiktok:hover { opacity: 1; text-decoration: underline; }
+
+    /* === Hidden PNG render area === */
+    .png-stage {
+      position: fixed;
+      left: -99999px;
+      top: 0;
+      width: 1080px;
+      height: 1080px;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .png-card {
+      width: 1080px;
+      height: 1080px;
+      background:
+        radial-gradient(1200px 650px at 30% -10%, rgba(255,255,255,0.09), transparent 55%),
+        radial-gradient(900px 500px at 110% 10%, rgba(105,201,208,0.10), transparent 60%),
+        #0f0f0f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 84px;
+      box-sizing: border-box;
+    }
+
+    .png-inner {
+      width: 100%;
+      border-radius: 40px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+      padding: 64px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .png-title {
+      font-size: 60px;
+      line-height: 1.05;
+      font-weight: 900;
+      letter-spacing: -1.2px;
+      margin: 0 0 28px;
+    }
+
+    .png-desc {
+      font-size: 34px;
+      line-height: 1.45;
+      opacity: 0.88;
+      margin: 0 0 44px;
+      white-space: pre-line;
+    }
+
+    .png-sep {
+      height: 2px;
+      background: rgba(255,255,255,0.10);
+      margin: 0 0 40px;
+      border-radius: 2px;
+    }
+
+    .png-cta {
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.15;
+      margin: 0 0 26px;
+    }
+
+    .png-pill {
+      display: inline-block;
+      font-size: 42px;
+      font-weight: 900;
+      padding: 22px 30px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.22);
+      border: 2px solid rgba(255,255,255,0.10);
+      letter-spacing: 0.4px;
+      margin-bottom: 34px;
+    }
+
+    .png-account {
+      font-size: 34px;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .png-handle {
+      color: #69c9d0;
+      font-weight: 900;
+    }
+
+    .png-brand {
+      margin-top: 30px;
+      font-size: 26px;
+      opacity: 0.65;
+      letter-spacing: 0.6px;
+      font-weight: 800;
+    }
   </style>
 </head>
 
@@ -180,18 +316,18 @@
         <div id="errorText">Something went wrong.</div>
       </div>
 
-      <!-- Shareable card -->
+      <!-- Compact UI card (shown to user) -->
       <div id="result" class="result" aria-live="polite">
-        <strong id="resultHeader">🧠 AI готовит что-то смешное</strong>
-        <p id="resultDescription"></p>
+        <strong id="uiHeader">🧠 AI готовит что-то смешное</strong>
+        <p id="uiDescription"></p>
 
         <div class="cta">
-          <div style="font-weight:700; font-size:18px; opacity:0.95;">
-            Ищи её позже в TikTok по хэштегу
+          <div style="font-weight:900; font-size:18px; opacity:0.95;">
+            Ищи шутку позже в TikTok по хэштегу
           </div>
 
           <div style="margin-top:10px;">
-            <a id="hashtagLink" class="pill" href="#" target="_blank" rel="noopener noreferrer">#—</a>
+            <a id="uiHashtagLink" class="pill" href="#" target="_blank" rel="noopener noreferrer">#—</a>
           </div>
 
           <div style="margin-top:12px; opacity:0.92;">
@@ -200,30 +336,29 @@
               @ai_ne_ponyal
             </a>
           </div>
-
-          <div class="meta-row">
-            <a id="tiktokSearchLink" class="open-link" href="#" target="_blank" rel="noopener noreferrer">
-              🔍 Открыть поиск TikTok
-            </a>
-
-            <!-- Buttons will be shown/hidden depending on browser capabilities -->
-            <button id="shareNativeBtn" class="share-btn" type="button" disabled style="display:none;">
-              📤 Share
-            </button>
-
-            <button id="copyImageBtn" class="share-btn" type="button" disabled style="display:none;">
-              📋 Copy card
-            </button>
-
-            <button id="downloadPngBtn" class="share-btn" type="button" disabled style="display:none;">
-              ⬇️ Download PNG
-            </button>
-          </div>
-
-          <div id="shareHint" style="margin-top:10px; font-size:13px; opacity:0.6; display:none;">
-            Tip: for Telegram, “Copy card” → paste into chat works best.
-          </div>
         </div>
+
+         <div class="meta-row">
+           <button id="shareNativeBtn" class="share-btn" type="button" disabled style="display:none;" aria-label="Share">
+             <span class="icon" aria-hidden="true">
+               <svg viewBox="0 0 24 24"><path d="M18 8a3 3 0 1 0-2.83-4H15a3 3 0 0 0 .17 1L7.91 9.7a3 3 0 1 0 0 4.6l7.26 4.7A3 3 0 1 0 16 18a3 3 0 0 0-.17 1L8.57 14.3A3 3 0 1 0 6 12a3 3 0 0 0 .17 1l7.26-4.7A3 3 0 0 0 18 8Z"/></svg>
+             </span>
+           </button>
+
+           <button id="copyImageBtn" class="share-btn" type="button" disabled style="display:none;" aria-label="Copy card">
+             <span class="icon" aria-hidden="true">
+               <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
+             </span>
+           </button>
+
+           <button id="downloadPngBtn" class="share-btn" type="button" disabled style="display:none;" aria-label="Download PNG">
+             <span class="icon" aria-hidden="true">
+               <svg viewBox="0 0 24 24"><path d="M12 3v10.17l3.59-3.58L17 11l-5 5-5-5 1.41-1.41L11 13.17V3h1Zm-7 16h14v2H5v-2Z"/></svg>
+             </span>
+           </button>
+         </div>
+
+        <div id="shareHint">Tip: for Telegram, “Copy card” → paste into chat works best.</div>
       </div>
     </div>
 
@@ -240,7 +375,28 @@
     </div>
   </div>
 
-  <!-- Load html-to-image (two CDNs, then dynamic fallback in JS) -->
+  <!-- Hidden PNG render stage -->
+  <div class="png-stage" aria-hidden="true">
+    <div id="pngCard" class="png-card">
+      <div class="png-inner">
+        <div id="pngHeader" class="png-title">🧠 AI готовит что-то смешное</div>
+        <div id="pngDescription" class="png-desc"></div>
+
+        <div class="png-sep"></div>
+
+        <div class="png-cta">Ищи шутку позже в TikTok по хэштегу</div>
+        <div id="pngHashtag" class="png-pill">#—</div>
+
+        <p class="png-account">
+          Или на странице нашего аккаунта: <span class="png-handle">@ai_ne_ponyal</span>
+        </p>
+
+        <div class="png-brand">#aiNePonyal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- html-to-image -->
   <script defer src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
 
@@ -253,13 +409,20 @@
     const errorTitle = document.getElementById("errorTitle");
     const errorText = document.getElementById("errorText");
 
-    const resultCard = document.getElementById("result");
-    const resultHeader = document.getElementById("resultHeader");
-    const resultDescription = document.getElementById("resultDescription");
+    const resultContainer = document.getElementById("result");
 
-    const hashtagLink = document.getElementById("hashtagLink");
-    const tiktokSearchLink = document.getElementById("tiktokSearchLink");
+    // UI fields
+    const uiHeader = document.getElementById("uiHeader");
+    const uiDescription = document.getElementById("uiDescription");
+    const uiHashtagLink = document.getElementById("uiHashtagLink");
 
+    // PNG fields
+    const pngCard = document.getElementById("pngCard");
+    const pngHeader = document.getElementById("pngHeader");
+    const pngDescription = document.getElementById("pngDescription");
+    const pngHashtag = document.getElementById("pngHashtag");
+
+    // Share buttons
     const shareNativeBtn = document.getElementById("shareNativeBtn");
     const copyImageBtn = document.getElementById("copyImageBtn");
     const downloadPngBtn = document.getElementById("downloadPngBtn");
@@ -267,8 +430,17 @@
 
     let lastResult = null;
 
+    const SHARE_TEXTS = [
+      (tags, url) => `AI не понял, но всё равно взялся за работу 😤\n${tags}\n${url}`,
+      (tags, url) => `AI потянулся, вдохнул… и пошёл думать 🧠\n${tags}\n${url}`,
+      (tags, url) => `AI делает вид, что всё под контролем 😎\n${tags}\n${url}`,
+      (tags, url) => `AI готовит шутку. Пожалуйста, не пугайте его 😅\n${tags}\n${url}`,
+      (tags, url) => `AI уже в процессе. Шутка будет! (наверное) 🤝\n${tags}\n${url}`,
+      (tags, url) => `AI разминает колени и мозги одновременно 🧴🧠\n${tags}\n${url}`,
+    ];
+
     function showError(title, text) {
-      resultCard.style.display = "none";
+      resultContainer.style.display = "none";
       errorBox.style.display = "block";
       errorTitle.textContent = title;
       errorText.textContent = text;
@@ -290,7 +462,7 @@
     }
 
     function tiktokSearchUrlByHashtag(tagWithoutHash) {
-      return `https://www.tiktok.com/search?q=%23${encodeURIComponent(tagWithoutHash)}`;
+      return `https://www.tiktok.com/search?q=%23aineponyal%20%23${encodeURIComponent(tagWithoutHash)}`;
     }
 
     function detectShareCapabilities() {
@@ -298,38 +470,50 @@
       const canCopyImage = !!(navigator.clipboard && window.ClipboardItem);
       const canDownload = true;
 
-      // Show the best options for each environment
-      // Native share with files is tricky: we will enable only if canShare(files) is true AFTER we create a file.
-      // For now, we keep it visible if navigator.share exists.
       shareNativeBtn.style.display = canNativeShare ? "" : "none";
       copyImageBtn.style.display = canCopyImage ? "" : "none";
       downloadPngBtn.style.display = canDownload ? "" : "none";
 
-      // Telegram UX tip
       shareHint.style.display = (copyImageBtn.style.display !== "none") ? "" : "none";
     }
 
     detectShareCapabilities();
 
-    function showResult(data) {
-      hideError();
-      resultCard.style.display = "block";
+    function buildShareTitle(jokeId) {
+      return `AI не понял · ${jokeId}`;
+    }
 
+    function buildShareText(jokeId) {
+      const tags = `#aiNePonyal #${jokeId}`;
+      const url = tiktokSearchUrlByHashtag(jokeId);
+      const pick = SHARE_TEXTS[Math.floor(Math.random() * SHARE_TEXTS.length)];
+      return pick(tags, url);
+    }
+
+     function setBusy(btnEl, busyText) {
+       btnEl.disabled = true;
+       return () => {
+         btnEl.disabled = (resultContainer.style.display === "none");
+       };
+     }
+
+    function fillCards(data) {
       const id = String(data.joke_id);
       const hashtag = `#${id}`;
       const searchUrl = tiktokSearchUrlByHashtag(id);
 
-      resultHeader.textContent = data.header || "🧠 AI готовит что-то смешное";
-      resultDescription.textContent = data.description || "Нужно немного времени. AI уже готовится думать.";
+      // UI compact card
+      uiHeader.textContent = data.header || "🧠 AI готовит что-то смешное";
+      uiDescription.textContent = data.description || "Нужно немного времени. AI уже готовится думать.";
+      uiHashtagLink.textContent = hashtag;
+      uiHashtagLink.href = searchUrl;
 
-      hashtagLink.textContent = hashtag;
-      hashtagLink.href = searchUrl;
-      tiktokSearchLink.href = searchUrl;
+      // PNG card (hidden)
+      pngHeader.textContent = data.header || "🧠 AI готовит что-то смешное";
+      pngDescription.textContent = data.description || "Нужно немного времени. AI уже готовится думать.";
+      pngHashtag.textContent = hashtag;
 
       lastResult = { ...data, _searchUrl: searchUrl };
-
-      // enable visible share buttons
-      setShareButtonsEnabled(true);
     }
 
     function loadScript(src) {
@@ -361,14 +545,12 @@
       throw new Error("html-to-image not available");
     }
 
-    async function renderCardToPngDataUrl() {
+    async function renderPngCardToDataUrl() {
       await ensureHtmlToImageLoaded();
-
-      // Render ONLY the card (#result) to PNG
-      return await window.htmlToImage.toPng(resultCard, {
-        pixelRatio: 2,
+      return await window.htmlToImage.toPng(pngCard, {
+        pixelRatio: 1,
         cacheBust: true,
-        backgroundColor: "#151515",
+        backgroundColor: "#0f0f0f",
       });
     }
 
@@ -382,7 +564,7 @@
       return new File([u8arr], filename, { type: mime });
     }
 
-    async function copyCardImageToClipboard(dataUrl) {
+    async function copyImageToClipboard(dataUrl) {
       const blob = await (await fetch(dataUrl)).blob();
       await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
     }
@@ -396,60 +578,48 @@
       a.remove();
     }
 
-    function setButtonBusy(btnEl, busyText) {
-      const old = btnEl.textContent;
-      btnEl.disabled = true;
-      btnEl.textContent = busyText;
-      return () => {
-        btnEl.textContent = old;
-        // enabled back only if result is visible
-        btnEl.disabled = (resultCard.style.display === "none");
-      };
-    }
-
     async function nativeSharePngFile(file, jokeId) {
-      // IMPORTANT:
-      // Even if navigator.share works, some targets (Telegram) may ignore files.
-      // We still try, but we only claim success if share() resolves.
-      let title = "AI не понял";
-      if (jokeId) {
-        const url = `https://www.tiktok.com/search?q=%23aineponyal%20%23${encodeURIComponent(jokeId)}`;
-        title = `AI не понял, но всё равно взялся за работу 😤\n#aiNePonyal #${jokeId}\n${url}`;
-      }
-      await navigator.share({
-        title: title,
-        text: " ", // avoid title-only shares
-        files: [file],
-      });
+      const title = buildShareTitle(jokeId);
+      const text = buildShareText(jokeId);
+      await navigator.share({ title, text, files: [file] });
     }
 
     shareNativeBtn.addEventListener("click", async () => {
       if (!lastResult) return;
 
-      const restore = setButtonBusy(shareNativeBtn, "Sharing…");
+      const restore = setBusy(shareNativeBtn, "Sharing…");
       try {
-        const dataUrl = await renderCardToPngDataUrl();
-        const file = dataUrlToFile(dataUrl, "ai-ne-ponyal.png");
+        const dataUrl = await renderPngCardToDataUrl();
+        const filename = `ai-ne-ponyal-${lastResult.joke_id}.png`;
+        const file = dataUrlToFile(dataUrl, filename);
 
-        // If browser says it can't share files, fallback immediately
         if (!navigator.canShare || !navigator.canShare({ files: [file] })) {
-          // Fallback to copy if possible, else download
           if (copyImageBtn.style.display !== "none") {
-            await copyCardImageToClipboard(dataUrl);
-            shareNativeBtn.textContent = "✅ Copied";
+            await copyImageToClipboard(dataUrl);
           } else {
-            downloadDataUrl(dataUrl, "ai-ne-ponyal.png");
-            shareNativeBtn.textContent = "⬇️ Downloaded";
+            downloadDataUrl(dataUrl, filename);
           }
           setTimeout(restore, 1000);
           return;
         }
 
         await nativeSharePngFile(file, lastResult.joke_id);
-        shareNativeBtn.textContent = "✅ Shared";
         setTimeout(restore, 1000);
       } catch (e) {
         console.error(e);
+
+        const name = (e && (e.name || e.constructor?.name)) || "";
+        const msg = (e && e.message) || "";
+        const isAbort =
+          name === "AbortError" ||
+          name === "NotAllowedError" ||
+          /abort|cancell?ed|dismiss/i.test(msg);
+
+        if (isAbort) {
+          restore();
+          return;
+        }
+
         restore();
         showError("🤖 AI отвлёкся", "Не получилось поделиться карточкой. Попробуй “Copy card” или “Download PNG”.");
       }
@@ -458,11 +628,10 @@
     copyImageBtn.addEventListener("click", async () => {
       if (!lastResult) return;
 
-      const restore = setButtonBusy(copyImageBtn, "Copying…");
+      const restore = setBusy(copyImageBtn, "Copying…");
       try {
-        const dataUrl = await renderCardToPngDataUrl();
-        await copyCardImageToClipboard(dataUrl);
-        copyImageBtn.textContent = "✅ Copied";
+        const dataUrl = await renderPngCardToDataUrl();
+        await copyImageToClipboard(dataUrl);
         setTimeout(restore, 1000);
       } catch (e) {
         console.error(e);
@@ -474,11 +643,11 @@
     downloadPngBtn.addEventListener("click", async () => {
       if (!lastResult) return;
 
-      const restore = setButtonBusy(downloadPngBtn, "Preparing…");
+      const restore = setBusy(downloadPngBtn, "Preparing…");
       try {
-        const dataUrl = await renderCardToPngDataUrl();
-        downloadDataUrl(dataUrl, "ai-ne-ponyal.png");
-        downloadPngBtn.textContent = "⬇️ Downloaded";
+        const dataUrl = await renderPngCardToDataUrl();
+        const filename = `ai-ne-ponyal-${lastResult.joke_id}.png`;
+        downloadDataUrl(dataUrl, filename);
         setTimeout(restore, 1000);
       } catch (e) {
         console.error(e);
@@ -495,10 +664,7 @@
       try {
         const res = await fetch(`${API_BASE}/post/create`, {
           method: "GET",
-          headers: {
-            "Accept": "application/json",
-            "ngrok-skip-browser-warning": "true"
-          },
+          headers: { "Accept": "application/json", "ngrok-skip-browser-warning": "true" },
         });
 
         if (!res.ok) {
@@ -506,20 +672,18 @@
           return;
         }
 
-        let data;
-        try {
-          data = await res.json();
-        } catch {
-          showError("🤖 AI задумался слишком глубоко", "Неожиданный ответ сервера. Попробуй ещё раз.");
-          return;
-        }
+        const data = await res.json();
 
         if (!data || !data.joke_id) {
           showError("🤖 AI забыл номер шутки", "В ответе сервера нет joke_id.");
           return;
         }
 
-        showResult(data);
+        hideError();
+        resultContainer.style.display = "block";
+
+        fillCards(data);
+        setShareButtonsEnabled(true);
       } catch (e) {
         console.error(e);
         showError("🤖 AI не добрался до сервера", "Не удалось связаться с сервером. Попробуй ещё раз.");
