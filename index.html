@@ -117,12 +117,7 @@
       letter-spacing: 0.2px;
     }
 
-    .result.error {
-      border-color: rgba(254, 44, 85, 0.7);
-      background: rgba(254, 44, 85, 0.08);
-    }
-
-    /* Error box (ONLY 2 types total) */
+    /* Error box */
     .error-box {
       margin-top: 4px;
       padding: 14px 16px;
@@ -187,8 +182,8 @@
       </button>
 
       <!-- Error box:
-           1) Access denied (not allowed account) -> shown only when URL has ?error=login_failed
-           2) Something went wrong during login/generation -> shown only by JS on request crash/bad response
+           A) Access denied (not allowed account) -> URL has ?error=forbidden OR ?error=login_failed
+           B) Kazus (network/server/unexpected response) -> rendered by JS on failures
       -->
       <div id="errorBox" class="error-box" aria-live="polite">
         <strong id="errorTitle">⚠️ Error</strong>
@@ -237,7 +232,6 @@
     function showError(title, text) {
       // Always hide result on error
       result.style.display = "none";
-      result.classList.remove("error");
 
       errorBox.style.display = "block";
       errorTitle.textContent = title;
@@ -248,20 +242,22 @@
       errorBox.style.display = "none";
     }
 
-    function showResult(ok, text) {
+    function showResult(text) {
       hideError();
       result.style.display = "block";
-      result.classList.toggle("error", !ok);
-      resultTitle.textContent = ok ? "✅ Generated" : "⚠️ Error";
+      resultTitle.textContent = "✅ Generated";
       jokeId.textContent = text;
     }
 
-    // === ERROR TYPE #1: "Not me" login (backend redirect) ===
-    // Backend should redirect to:
-    //   https://<github-pages-domain>/?error=login_failed
+    // === ERROR TYPE A: "Not me" login (backend redirect) ===
+    // Accept both:
+    //   ?error=forbidden
+    //   ?error=login_failed
     (function renderAccessDeniedIfAny() {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("error") !== "login_failed") return;
+      const err = params.get("error");
+
+      if (err !== "forbidden" && err !== "login_failed") return;
 
       showError(
         "🚫 Access denied",
@@ -284,7 +280,7 @@
         });
 
         if (!res.ok) {
-          // ERROR TYPE #2: "Kazus" (server returned non-2xx)
+          // ERROR TYPE B: kazus (server returned non-2xx)
           showError(
             "❌ Something went wrong",
             "We couldn't generate a post right now. Please try again."
@@ -296,7 +292,7 @@
         try {
           data = await res.json();
         } catch {
-          // ERROR TYPE #2: "Kazus" (not JSON)
+          // ERROR TYPE B: kazus (not JSON)
           showError(
             "❌ Something went wrong",
             "Unexpected server response. Please try again."
@@ -307,7 +303,7 @@
         const id = data.joke_id ?? data.jokeId ?? data.number ?? data.id;
 
         if (!id) {
-          // ERROR TYPE #2: "Kazus" (missing expected field)
+          // ERROR TYPE B: kazus (missing expected field)
           showError(
             "❌ Something went wrong",
             "Invalid response from server. Please try again."
@@ -315,9 +311,9 @@
           return;
         }
 
-        showResult(true, String(id));
+        showResult(String(id));
       } catch (e) {
-        // ERROR TYPE #2: "Kazus" (network/CORS/ngrok down)
+        // ERROR TYPE B: kazus (network/CORS/ngrok down)
         console.error(e);
         showError(
           "❌ Something went wrong",
