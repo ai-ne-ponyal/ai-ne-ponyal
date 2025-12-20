@@ -73,6 +73,59 @@
       border-bottom: none;
     }
 
+    /* Мобильная версия - карточки вместо таблицы */
+    @media (max-width: 768px) {
+      .table-container {
+        overflow: visible;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+
+      tbody tr {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+      }
+
+      tbody tr:last-child {
+        margin-bottom: 0;
+      }
+
+      td {
+        border: none;
+        padding: 8px 0;
+        position: relative;
+        padding-left: 40%;
+        text-align: left;
+      }
+
+      td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 35%;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        opacity: 0.7;
+        letter-spacing: 0.5px;
+      }
+
+      td:last-child {
+        border-bottom: none;
+      }
+    }
+
     .hashtag {
       font-weight: 800;
       color: #69c9d0;
@@ -390,10 +443,10 @@
       data.intentions.forEach(intention => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td><span class="hashtag">#${intention.fun_id}</span></td>
-          <td><span class="timestamp">${formatTimestamp(intention.created_at)}</span></td>
-          <td><span class="timestamp">${formatTimestamp(intention.processed_at)}</span></td>
-          <td><span class="${getStatusClass(intention.status)}">${intention.status}</span></td>
+          <td data-label="#hashtag"><span class="hashtag">#${intention.fun_id}</span></td>
+          <td data-label="Created"><span class="timestamp">${formatTimestamp(intention.created_at)}</span></td>
+          <td data-label="Processing Started"><span class="timestamp">${formatTimestamp(intention.processed_at)}</span></td>
+          <td data-label="Status"><span class="${getStatusClass(intention.status)}">${intention.status}</span></td>
         `;
         tbody.appendChild(row);
       });
