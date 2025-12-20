@@ -308,7 +308,7 @@
       </button>
 
       <button id="genBtn" class="btn btn-generate" type="button">
-        Generate post
+        Queue post
       </button>
 
       <div id="errorBox" class="error-box" aria-live="polite">
@@ -691,7 +691,7 @@
         showError("🤖 AI не добрался до сервера", "Сервер сейчас отдыхает. Попробуйте позже.");
       } finally {
         btn.disabled = false;
-        btn.textContent = "Generate post";
+        btn.textContent = "Queue post";
       }
     });
 
@@ -711,7 +711,7 @@
         window.location.href = `${API_BASE}/auth/start`;
       } catch (e) {
         console.error(e);
-        showError("🤖 Сервер недоступен", "Ушел отдыхать. Попробуйте позже.");
+        showError("🤖 Сервер недоступен", "Снова ушел отдыхать. Попробуйте позже.");
         tiktokAuthBtn.disabled = false;
         tiktokAuthBtn.textContent = "Sign in with TikTok";
       }
