@@ -303,9 +303,11 @@
     <p style="margin-top:12px;">Personal experimental project.<br />No data collection. No tracking.</p>
 
     <div class="actions">
-<!--      <button id="tiktokAuthBtn" class="btn btn-tiktok" type="button">-->
-<!--        Sign in with TikTok (admin only)-->
-<!--      </button>-->
+      <!-- Кнопка входа через TikTok полностью отключена
+      <button id="tiktokAuthBtn" class="btn btn-tiktok" type="button">
+        Sign in with TikTok (admin only)
+      </button>
+      -->
 
       <button id="genBtn" class="btn btn-generate" type="button">
         Queue post
@@ -408,7 +410,8 @@
     const API_BASE = "https://c75b2796fec5.ngrok-free.app";
 
     const btn = document.getElementById("genBtn");
-    const tiktokAuthBtn = document.getElementById("tiktokAuthBtn");
+    // Кнопка входа через TikTok отключена
+    // const tiktokAuthBtn = document.getElementById("tiktokAuthBtn");
 
     const errorBox = document.getElementById("errorBox");
     const errorTitle = document.getElementById("errorTitle");
@@ -733,6 +736,8 @@
     // Обновляем лимиты каждые 30 секунд
     setInterval(loadLimits, 30000);
 
+    // Обработчик кнопки входа через TikTok полностью отключен
+    /*
     tiktokAuthBtn.addEventListener("click", async () => {
       tiktokAuthBtn.disabled = true;
       tiktokAuthBtn.textContent = "Checking...";
@@ -754,6 +759,7 @@
         tiktokAuthBtn.textContent = "Sign in with TikTok";
       }
     });
+    */
   </script>
 </body>
 </html>
