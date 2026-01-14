@@ -470,7 +470,7 @@
       document.getElementById('error').style.display = 'none';
 
       try {
-        const res = await fetch(`${API_BASE}/intentions?page=${page}&page_size=20`, {
+        const res = await fetch(`${API_BASE}/intentions?page=${page}&page_size=10`, {
           headers: { "Accept": "application/json", "ngrok-skip-browser-warning": "true" }
         });
 
